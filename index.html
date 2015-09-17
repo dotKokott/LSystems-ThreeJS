@@ -1,83 +1,81 @@
 <html>
-
-  <head>
-    <style>
-      body{ margin: 0px; }
-      html{ overflow: hidden }
-    </style>
-  </head>
-
   <body>
 
-    <script src = "lib/three.min.js"                ></script>
-    <script src = "lib/jquery.min.js"               ></script>
-    <script src = "lib/ShaderLoader.js"             ></script>
-    <script src = "lib/TrackballControls.js"        ></script>
+  </body>
 
-    <script>
+  <script src="CanvasHelper.js">
+  </script>
 
+  <script>
+    var base = "-F";
 
-      var camera, renderer, scene , controls;
+    var angleChange = Math.PI / 2;
+    var length = 3;
+    var iterations = 5;
 
-      navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+    function replaceAll(find, replace, str) {
+      return str.replace(new RegExp(find, 'g'), replace);
+    }
 
-
-      function init(){
-
-        var w = window.innerWidth;
-        var h = window.innerHeight;
-
-        camera = new THREE.PerspectiveCamera( 65 , w/h , .001 , 4 );
-        camera.position.z = 2;
-       // camera.position.y = -.4;
-
-        scene = new THREE.Scene();
-
-        var dpr = window.devicePixelRatio || 1;
-        renderer = new THREE.WebGLRenderer();
-        renderer.setPixelRatio( dpr );
-        renderer.setSize( window.innerWidth, window.innerHeight );
-
-        document.body.appendChild( renderer.domElement );
-
-        window.addEventListener( 'resize', onWindowResize, false );
-
-
-        controls = new THREE.TrackballControls( camera );
-
-
-        var geo = new THREE.BoxGeometry( .1 , .1, .1 );
-
-        var mat = new THREE.MeshBasicMaterial;
-
-        var audioMesh = new THREE.Mesh( geo , mat );
-
-        scene.add( audioMesh );
+    function init() {
+      for(var i = 0; i < iterations; i++) {
+        base = replaceAll("F", "F+F-F-F+F", base);
       }
 
 
-      function animate(){
+    }
 
-        requestAnimationFrame( animate );
-        controls.update();
-        renderer.render( scene , camera );
+    function draw() {
+      ctx.clearRect(0, 0, WIDTH, HEIGHT);
+      var angle = Math.PI / -2;
+      var currentPos = new Vector2((WIDTH / 2) + 350, HEIGHT / 2);
+
+      for(var i = 0; i < base.length; i++) {
+        if(base[i] == 'F') {
+          var vec = new Vector2(Math.cos(angle) * length, Math.sin(angle) * length);
+          var newPos = currentPos.Added(vec);
+          drawLine(currentPos, newPos);
+          currentPos = newPos;
+        }
+
+        if(base[i] == '+') {
+          angle += angleChange;
+        }
+
+        if(base[i] == '-') {
+          angle -= angleChange;
+        }
 
       }
+    }
 
+    function update(dt) {
 
-      function onWindowResize() {
+      draw();
 
-				camera.aspect = window.innerWidth / window.innerHeight;
-				camera.updateProjectionMatrix();
+    }
 
-				renderer.setSize( window.innerWidth, window.innerHeight );
+    var dt;
+    var totalSeconds;
 
-			}
+    (function (window) {
+      var start = new Date();
+      var last = new Date();
 
       init();
-      animate();
 
-    </script>
+      function tick() {
+        var now = new Date();
+        dt = (now - last) / 1000;
+        totalSeconds = (now - start) / 1000;
+        last = now;
 
-  </body>
+        update(dt);
+      }
+
+      window.setInterval(tick, 1000 / 60);
+    } (window));
+
+  </script>
+
 </html>
