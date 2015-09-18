@@ -7,11 +7,19 @@
   </script>
 
   <script>
-    var base = "-F";
+    var base1 = "-F";
+    var base1Rule1 = "F+F-F-F+F";
+
+    var base2 = "F-F-F-F";
+    var base2Rule1 = "F+FF-FF-F-F+F+FF-F-F+F+FF+FF-F";
+
+    var base = "F+F+F+F";
+    var base3Rule1 = "F+f-FF+F+FF+Ff+FF-f+FF-F-FF-Ff-FFF";
+    var base3Rule2 = "ffffff";
 
     var angleChange = Math.PI / 2;
-    var length = 3;
-    var iterations = 5;
+    var length = 8;
+    var iterations = 2;
 
     function replaceAll(find, replace, str) {
       return str.replace(new RegExp(find, 'g'), replace);
@@ -19,16 +27,24 @@
 
     function init() {
       for(var i = 0; i < iterations; i++) {
-        base = replaceAll("F", "F+F-F-F+F", base);
+        base = replaceAll("f", base3Rule2, base);
+        base = replaceAll("F", base3Rule1, base);
       }
-
-
     }
 
     function draw() {
-      ctx.clearRect(0, 0, WIDTH, HEIGHT);
+      ctx.fillStyle='rgba(0, 0, 0, .9)';
+      ctx.fillRect(0, 0, WIDTH, HEIGHT);
+      //ctx.clearRect(0, 0, WIDTH, HEIGHT);
       var angle = Math.PI / -2;
       var currentPos = new Vector2((WIDTH / 2) + 350, HEIGHT / 2);
+
+      angleChange = Math.PI / 2;
+      length = 4;
+
+
+      //ctx.fillStyle='white';
+      ctx.strokeStyle='white';
 
       for(var i = 0; i < base.length; i++) {
         if(base[i] == 'F') {
@@ -36,13 +52,25 @@
           var newPos = currentPos.Added(vec);
           drawLine(currentPos, newPos);
           currentPos = newPos;
+          ctx.strokeStyle = getHSLA(0, (360 / base.length) * i);
+        }
+
+        if(base[i] == 'f') {
+          var l = length; // + (Math.cos(totalSeconds * 2) * 3.5) - 2;
+
+          var vec = new Vector2(Math.cos(angle) * l, Math.sin(angle) * l);
+          var newPos = currentPos.Added(vec);
+
+          currentPos = newPos;
         }
 
         if(base[i] == '+') {
+          //angle += angleChange + Math.cos(totalSeconds * 0.05) * 0.5;
           angle += angleChange;
         }
 
         if(base[i] == '-') {
+          //angle -= angleChange + Math.sin(totalSeconds * 0.05)* 0.5;
           angle -= angleChange;
         }
 
@@ -50,9 +78,7 @@
     }
 
     function update(dt) {
-
-      draw();
-
+        draw();
     }
 
     var dt;
